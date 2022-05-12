@@ -11,7 +11,8 @@ export const App = () => {
   const classNames = {
     body: ["bg-moccasin"],
     container: ["pure-g"],
-    form: ["flex", "flex-col", "pure-u-2-3"],
+    /* form: ["flex", "flex-col", "pure-u-2-3"], */
+    form: ["pure-form", "pure-form-stacked"],
     menu: ["pure-menu", "pure-menu-horizontal", "bg-whitesmoke"],
     menuList: ["pure-menu-list"],
     menuListItem: ["pure-menu-item"],

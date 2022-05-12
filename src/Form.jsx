@@ -20,6 +20,10 @@ export const Form = ({ ...props }) => {
   const errorInit = { nameErr: "", usernameErr: "", passwordErr: "" };
   const errorRef = useRef(errorInit);
 
+  const classNames = {
+    input: ["pure-input-1"],
+  };
+
   /**
    *
    * @param {import("react").ChangeEvent<HTMLInputElement>} evt
@@ -58,6 +62,10 @@ export const Form = ({ ...props }) => {
       errorRef.current.usernameErr +=
         "\n- Only valid ascii characters are allowed (must match regexp '/[\\x21-\\x7E]+/')";
     }
+    if (formData.plaintext !== formData.plaintextVerify) {
+      setHasErrors(true);
+      errorRef.current.passwordErr = "Passwords don't match";
+    }
   };
 
   /**
@@ -83,47 +91,56 @@ export const Form = ({ ...props }) => {
   return (
     <form {...props} onSubmit={handleSubmit}>
       <TextInput
-        className="my-1"
+        className={classNames.input.join(" ")}
         name="name"
-        placeholder="Full name"
         onChange={handleChange}
         onBlur={handleChange}
-        onFocus={handleChange}
         value={formData.name}
+        placeholder="Full name"
+        required
       />
       <TextInput
-        className="my-1"
+        className={classNames.input.join(" ")}
         name="username"
-        placeholder="Username"
         onChange={handleChange}
         onBlur={handleChange}
-        onFocus={handleChange}
         value={formData.username}
+        placeholder="Username"
+        required
       />
       <PasswordInput
-        className="my-1"
+        className={classNames.input.join(" ")}
         name="plaintext"
         onChange={handleChange}
         onBlur={handleChange}
-        onFocus={handleChange}
         value={formData.plaintext}
         placeholder="Password"
+        required
       />
       <PasswordInput
-        className="my-1"
+        className={classNames.input.join(" ")}
         name="plaintext-verify"
         onChange={handleChange}
         onBlur={handleChange}
-        onFocus={handleChange}
         value={formData.plaintextVerify}
         placeholder="Verify password"
+        required
       />
 
       <Button
-        className={hasErrors ? "" : ""}
+        className={
+          hasErrors
+            ? "pure-button cursor-not-allowed"
+            : "pure-button pure-button-primary"
+        }
         type="submit"
         value="Register"
         disabled={hasErrors}
+      />
+      <Button
+        className="pure-button button-secondary"
+        type="reset"
+        value="Reset"
       />
     </form>
   );

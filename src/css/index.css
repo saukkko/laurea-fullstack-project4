@@ -1,4 +1,4 @@
-/* purecss overrides */
+/* * * * * purecss overrides * * * * */
 .pure-g,
 .pure-g [class*="pure-u"] {
   font-family: Roboto, system-ui, sans-serif;
@@ -11,6 +11,9 @@
 .pure-menu-link:hover {
   background-color: rgb(200, 200, 200);
 }
+.pure-button[disabled] {
+  pointer-events: unset;
+}
 
 /* colors */
 .bg-moccasin {
@@ -20,7 +23,8 @@
   background-color: whitesmoke;
 }
 
-/* fonts */
+/* * * * * fonts * * * * */
+
 div,
 span,
 input,
@@ -41,7 +45,9 @@ th {
   font-family: "Open Sans", system-ui, sans-serif;
   font-weight: 600;
 }
-/* margin */
+
+/* * * * * margin * * * * */
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -69,7 +75,8 @@ th {
   margin: 0.5rem;
 }
 
-/* padding */
+/* * * * * padding * * * * */
+
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -92,7 +99,9 @@ th {
 .p-2 {
   padding: 0.5rem;
 }
-/* gaps */
+
+/* * * * * gaps * * * * */
+
 .gap-1 {
   gap: 0.25rem;
 }
@@ -129,7 +138,9 @@ th {
 .gap-y-4 {
   column-gap: 1rem;
 }
-/* flex */
+
+/* * * * * flex * * * * */
+
 .flex {
   display: flex;
 }
@@ -142,7 +153,9 @@ th {
 .justify-around {
   justify-content: space-around;
 }
-/* width */
+
+/* * * * * width * * * * */
+
 .w-100 {
   width: 100%;
 }
@@ -173,10 +186,28 @@ th {
 .max-w-lg {
   max-width: 64em;
 }
-/* cursors */
+
+/* * * * * cursors * * * * */
+
 .cursor-pointer {
   cursor: pointer;
 }
 .cursor-not-allowed {
   cursor: not-allowed;
+}
+
+/* * * * * buttons * * * * */
+.button-error,
+.button-secondary {
+  color: white;
+  border-radius: 4px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.button-error {
+  cursor: not-allowed;
+  background: rgb(202, 60, 60);
+}
+
+.button-secondary {
+  background: rgb(66, 184, 221);
 }
