@@ -1,6 +1,13 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { MenuItem } from "./components/MenuItem";
+import { Link } from "react-router-dom";
 
+/**
+ *
+ * @param {MenuProps} param0
+ * @returns
+ */
 export const Menu = ({ classNames, ...props }) => {
   const classes = {
     menu: classNames.menu.join(" "),
@@ -9,28 +16,26 @@ export const Menu = ({ classNames, ...props }) => {
     menuListAnchor: classNames.menuListAnchor.join(" "),
   };
 
-  /**
-   *
-   * @param {import("react").MouseEvent<HTMLAnchorElement>} evt
-   */
-  const handleClick = (evt) => {
-    evt.preventDefault();
-    evt.currentTarget.id;
-  };
-
   return (
     <div className={classes.menu} {...props}>
+      <Link to="/" className="pure-menu-heading pure-menu-link">
+        HOME
+      </Link>
       <ul className={classes.menuList}>
-        <MenuItem classes={classes} onClick={handleClick} href="#" id="reg">
+        <MenuItem classes={classes} linkTo="/register">
           Register
         </MenuItem>
-        <MenuItem classes={classes} onClick={handleClick} href="#" id="login">
+        <MenuItem classes={classes} linkTo="/login">
           Login
         </MenuItem>
-        <MenuItem classes={classes} onClick={handleClick} href="#" id="get">
-          Get/Update/Delete
+        <MenuItem classes={classes} linkTo="/get">
+          Get/Delete/Update
         </MenuItem>
       </ul>
     </div>
   );
+};
+
+Menu.propTypes = {
+  classNames: PropTypes.object.isRequired,
 };
