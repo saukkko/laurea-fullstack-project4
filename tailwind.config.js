@@ -9,6 +9,7 @@ module.exports = {
     colors: {
       moccasin: "#ffe4b5",
       whitesmoke: "#f5f5f5",
+      error: "#ca3c3c;",
     },
     extend: {},
   },

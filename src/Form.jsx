@@ -1,147 +1,192 @@
-import React, { useRef, useState } from "react";
-import { Button, PasswordInput, TextInput } from "./components/Input";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { Fields } from "./Fields";
 import { Rest } from "./util/Rest";
 
-/**
- *
- * @returns {[Error[], (newError: Error) => void, () => void]}
- */
-
-export const Form = ({ ...props }) => {
+export const Form = ({ page, classNames, ...props }) => {
   const formInit = {
+    id: "",
     name: "",
     username: "",
     plaintext: "",
     plaintextVerify: "",
   };
   const [formData, setFormData] = useState(formInit);
-  const [hasErrors, setHasErrors] = useState(true);
+  const [errors, setErrors] = useState(formInit);
+  const [hasErrors, setHasErros] = useState(true);
+  const [apiResponse, setApiResponse] = useState({});
 
-  const errorInit = { nameErr: "", usernameErr: "", passwordErr: "" };
-  const errorRef = useRef(errorInit);
-
-  const classNames = {
-    input: ["pure-input-1"],
+  const classes = {
+    form: classNames.form.join(" "),
+    input: classNames.formInput.join(" "),
+    primaryButton: classNames.primaryButton.join(" "),
+    secondaryButton: classNames.secondaryButton.join(" "),
+    errorButton: classNames.errorButton.join(" "),
   };
 
-  /**
-   *
-   * @param {import("react").ChangeEvent<HTMLInputElement>} evt
-   */
-  const handleChange = async (evt) => {
-    let { name, username, plaintext, plaintextVerify } = formData;
-    if (evt.target.name === "name") name = evt.target.value;
-    if (evt.target.name === "username") username = evt.target.value;
-    if (evt.target.name === "plaintext") plaintext = evt.target.value;
-    if (evt.target.name === "plaintext-verify")
-      plaintextVerify = evt.target.value;
+  const handleChange = (evt) => {
+    let { id, name, username, plaintext, plaintextVerify } = formData;
+    const target = evt.target;
+
+    if (target.name === "id") id = target.value;
+    if (target.name === "name") name = target.value;
+    if (target.name === "username") username = target.value.trim();
+    if (target.name === "plaintext") plaintext = target.value;
+    if (target.name === "plaintext-verify") plaintextVerify = target.value;
+
+    validateInput({ id, name, username, plaintext, plaintextVerify });
 
     setFormData({
+      id: id,
       name: name,
-      username: username.trim(),
+      username: username,
       plaintext: plaintext,
       plaintextVerify: plaintextVerify,
     });
-    validateForm();
   };
 
-  const validateForm = () => {
-    setHasErrors(false);
-    errorRef.current = errorInit;
-
-    if (formData.name.length < 3) {
-      setHasErrors(true);
-      errorRef.current.nameErr = "- Minimum length is three characters";
-    }
-    if (formData.username.length < 3) {
-      setHasErrors(true);
-      errorRef.current.usernameErr = "- Minimum length is three characters";
-    }
-    if (!formData.username.match(/[\x21-\x7E]+/g)) {
-      setHasErrors(true);
-      errorRef.current.usernameErr +=
-        "\n- Only valid ascii characters are allowed (must match regexp '/[\\x21-\\x7E]+/')";
-    }
-    if (formData.plaintext !== formData.plaintextVerify) {
-      setHasErrors(true);
-      errorRef.current.passwordErr = "Passwords don't match";
-    }
+  const handleReset = (evt) => {
+    evt.preventDefault();
+    setFormData(formInit);
+    setHasErros(true);
   };
 
-  /**
-   *
-   * @param {import("react").FormEvent<HTMLFormElement>} evt
-   */
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    validateForm();
+    validateInput(formData);
 
     if (hasErrors) return;
+    const submitter = evt.nativeEvent.submitter;
 
-    Rest.add({
-      name: formData.name,
-      username: formData.username,
-      plaintext: formData.plaintext,
-    }).then((data) => console.log(data));
+    switch (page.id) {
+      case "register":
+        Rest.add({
+          name: formData.name,
+          username: formData.username,
+          plaintext: formData.plaintext,
+        }).then((data) => {
+          setApiResponse(data);
+          console.log(data);
+        });
+        break;
 
-    setFormData({ name: "", username: "", plaintext: "", plaintextVerify: "" });
-    setHasErrors(true);
+      case "login":
+        Rest.login({
+          username: formData.username,
+          plaintext: formData.plaintext,
+        }).then((data) => {
+          setApiResponse(data);
+          console.log(data);
+        });
+        break;
+
+      case "getdelupdate":
+        switch (submitter.id) {
+          case "getall":
+            Rest.getAll().then((data) => {
+              setApiResponse(data);
+              console.log(data);
+            });
+            break;
+
+          case "get":
+            Rest.get(formData.id).then((data) => {
+              setApiResponse(data);
+              console.log(data);
+            });
+            break;
+
+          case "update":
+            Rest.update(formData.id, { name: formData.name }).then((data) => {
+              setApiResponse(data);
+              console.log(data);
+            });
+            break;
+
+          case "delete":
+            Rest.delete(formData.id).then((data) => {
+              setApiResponse(data);
+              console.log(data);
+            });
+            break;
+
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
+    }
+
+    setFormData(formInit);
+  };
+
+  const validateInput = (data) => {
+    setHasErros(false);
+
+    if (data.name.length < 3) {
+      setErrors({ ...errors, name: "Name must be at least 3 characters" });
+      setHasErros(true);
+    } else setErrors({ ...errors, name: "" });
+
+    if (data.username.match(/\s/g) || !data.username.match(/[\x21-\x7E]+/g)) {
+      setErrors({ ...errors, username: "Only ascii with no whitespace" });
+      setHasErros(true);
+    } else setErrors({ ...errors, username: "" });
   };
 
   return (
-    <form {...props} onSubmit={handleSubmit}>
-      <TextInput
-        className={classNames.input.join(" ")}
-        name="name"
-        onChange={handleChange}
-        onBlur={handleChange}
-        value={formData.name}
-        placeholder="Full name"
-        required
-      />
-      <TextInput
-        className={classNames.input.join(" ")}
-        name="username"
-        onChange={handleChange}
-        onBlur={handleChange}
-        value={formData.username}
-        placeholder="Username"
-        required
-      />
-      <PasswordInput
-        className={classNames.input.join(" ")}
-        name="plaintext"
-        onChange={handleChange}
-        onBlur={handleChange}
-        value={formData.plaintext}
-        placeholder="Password"
-        required
-      />
-      <PasswordInput
-        className={classNames.input.join(" ")}
-        name="plaintext-verify"
-        onChange={handleChange}
-        onBlur={handleChange}
-        value={formData.plaintextVerify}
-        placeholder="Verify password"
-        required
-      />
-
-      <Button
-        className={
-          hasErrors
-            ? "pure-button cursor-not-allowed"
-            : "pure-button pure-button-primary"
-        }
-        type="submit"
-        value="Register"
-        disabled={hasErrors}
-      />
-      <Button
-        className="pure-button button-secondary"
-        type="reset"
-        value="Reset"
-      />
-    </form>
+    <>
+      <form
+        className={classes.form}
+        onSubmit={handleSubmit}
+        onReset={handleReset}
+        action="#"
+        method="POST"
+        {...props}
+      >
+        <Fields
+          page={page}
+          formData={formData}
+          classes={classes}
+          handleChange={handleChange}
+          hasErrors={hasErrors}
+          errors={errors}
+        />
+      </form>
+      <RawView apiResponse={apiResponse} />
+    </>
   );
+};
+
+const RawView = ({ apiResponse }) => {
+  const [showRaw, setShowRaw] = useState(false);
+
+  return (
+    <>
+      <p
+        onClick={() => setShowRaw(!showRaw)}
+        className="cursor-pointer text-xs underline mt-4"
+      >
+        Toggle raw
+      </p>
+      <div
+        hidden={!showRaw}
+        className="bg-whitesmoke shadow-lg p-2 m-0 md:my-2 md:rounded-lg"
+      >
+        <pre className="font-roboto-mono text-sm overflow-scroll">
+          {JSON.stringify(apiResponse, null, 2)}
+        </pre>
+      </div>
+    </>
+  );
+};
+
+RawView.propTypes = {
+  apiResponse: PropTypes.object,
+};
+
+Form.propTypes = {
+  page: PropTypes.object.isRequired,
+  classNames: PropTypes.object.isRequired,
 };

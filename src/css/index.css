@@ -1,6 +1,6 @@
 @tailwind utilities;
 
-/* * * * * purecss overrides * * * * */
+/* * * purecss overrides * * */
 
 .pure-g,
 .pure-g [class*="pure-u"] {
@@ -23,14 +23,12 @@
 .button-error,
 .button-secondary {
   color: white;
-  border-radius: 4px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 .button-error {
-  cursor: not-allowed;
-  background: rgb(202, 60, 60);
+  background: #ca3c3c;
 }
 
 .button-secondary {
-  background: rgb(66, 184, 221);
+  background: #42b8dd;
 }

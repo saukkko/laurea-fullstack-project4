@@ -12,19 +12,22 @@ class RestBase {
 }
 
 export class Rest extends RestBase {
-  static async getAll() {
-    return await super._fetchData("/api/getAll", "GET");
+  static getAll() {
+    return super._fetchData("/api/getAll", "GET");
   }
-  static async get(id) {
-    return await super._fetchData(`/api/get/${id}`, "GET");
+  static get(id) {
+    return super._fetchData(`/api/${id}`, "GET");
   }
   static add(payload) {
     return super._fetchData(`/api/add`, "POST", payload);
   }
-  static async update(id, payload) {
-    return await super._fetchData(`/api/update/${id}`, "PATCH", payload);
+  static update(id, payload) {
+    return super._fetchData(`/api/update/${id}`, "PATCH", payload);
   }
-  static async delete(id) {
-    return await super._fetchData(`/api/get/${id}`, "DELETE");
+  static delete(id) {
+    return super._fetchData(`/api/delete/${id}`, "DELETE");
+  }
+  static login(payload) {
+    return super._fetchData(`/api/login`, "POST", payload);
   }
 }
