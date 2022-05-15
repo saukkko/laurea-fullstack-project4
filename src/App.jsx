@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Menu } from "./Menu";
-import { Form } from "./Form";
+import { Page } from "./Page";
 
 export const App = () => {
   useEffect(() => {
@@ -10,7 +10,7 @@ export const App = () => {
   });
 
   const classNames = {
-    body: ["bg-moccasin"],
+    body: ["bg-whitesmoke"],
     container: ["pure-g"],
     header: ["font-bold", "font-open-sans", "my-2"],
     form: ["pure-form", "pure-form-stacked"],
@@ -18,13 +18,7 @@ export const App = () => {
     primaryButton: ["pure-button", "pure-button-primary"],
     secondaryButton: ["pure-button", "button-secondary"],
     errorButton: ["pure-button", "button-error"],
-    menu: [
-      "pure-menu",
-      "pure-menu-horizontal",
-      "bg-whitesmoke",
-      "flex",
-      "justify-center",
-    ],
+    menu: ["pure-menu", "pure-menu-horizontal", "flex", "justify-center"],
     menuList: ["pure-menu-list"],
     menuListItem: ["pure-menu-item"],
     menuListAnchor: ["pure-menu-link"],
@@ -53,7 +47,7 @@ export const App = () => {
                   <span className={"text-lg " + classNames.header.join(" ")}>
                     Register
                   </span>
-                  <Form
+                  <Page
                     page={{ name: "Register", id: "register" }}
                     classNames={classNames}
                   />
@@ -67,7 +61,7 @@ export const App = () => {
                   <span className={"text-lg " + classNames.header.join(" ")}>
                     Login
                   </span>
-                  <Form
+                  <Page
                     page={{ name: "Login", id: "login" }}
                     classNames={classNames}
                   />
@@ -81,7 +75,7 @@ export const App = () => {
                   <span className={"text-lg " + classNames.header.join(" ")}>
                     Get/Delete/Update
                   </span>
-                  <Form
+                  <Page
                     page={{ name: "Get", id: "getdelupdate" }}
                     classNames={classNames}
                   />

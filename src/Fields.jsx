@@ -9,8 +9,17 @@ export const Fields = ({
   handleChange,
   hasErrors,
   errors,
+  disabledButtons,
 }) => {
-  const props = { page, formData, classes, handleChange, hasErrors, errors };
+  const props = {
+    page,
+    formData,
+    classes,
+    handleChange,
+    hasErrors,
+    errors,
+    disabledButtons,
+  };
 
   if (page.id == "register") return <Register {...props} />;
   if (page.id == "login") return <Login {...props} />;
@@ -75,23 +84,25 @@ const Register = (props) => {
 };
 
 const Login = (props) => {
-  const { page, formData, classes, handleChange } = props;
+  const { page, formData, classes, handleChange, hasErrors, errors } = props;
   return (
     <>
       <TextInput
-        className={classes.input}
         name="username"
+        placeholder="Username"
+        className={classes.input}
         onChange={handleChange}
         value={formData.username}
-        placeholder="Username"
+        errMsg={errors.username}
         required
       />
       <PasswordInput
-        className={classes.input}
         name={"plaintext"}
+        placeholder="Password"
+        className={classes.input}
         onChange={handleChange}
         value={formData.plaintext}
-        placeholder="Password"
+        errMsg={errors.plaintext}
         required
       />
       <div className="flex flex-row gap-2 my-1">
@@ -99,6 +110,7 @@ const Login = (props) => {
           className={classes.primaryButton}
           type="submit"
           value={page.name}
+          disabled={hasErrors}
         />
         <Button
           className={classes.secondaryButton}
@@ -111,47 +123,53 @@ const Login = (props) => {
 };
 
 const GetDelUpdate = (props) => {
-  const { formData, classes, handleChange } = props;
+  const {
+    formData,
+    classes,
+    handleChange,
+    hasErrors,
+    errors,
+    disabledButtons,
+  } = props;
   return (
     <>
       <TextInput
-        className={classes.input}
         name="id"
+        placeholder="ID"
+        className={classes.input}
         onChange={handleChange}
         value={formData.id}
-        placeholder="ID"
+        errMsg={errors.id}
       />
       <TextInput
-        className={classes.input}
         name="name"
+        placeholder="Full name"
+        className={classes.input}
         onChange={handleChange}
         value={formData.name}
-        placeholder="Full name"
+        errMsg={errors.name}
       />
       <div className="flex flex-row gap-2 my-1">
         <Button
           className={classes.primaryButton}
           type="submit"
-          id="getall"
-          value="Get all"
-        />
-        <Button
-          className={classes.primaryButton}
-          type="submit"
           id="get"
           value="Get"
+          disabled={hasErrors || disabledButtons.includes("get")}
         />
         <Button
           className={classes.primaryButton}
           type="submit"
           id="update"
           value="Update"
+          disabled={hasErrors || disabledButtons.includes("update")}
         />
         <Button
           className={classes.errorButton}
           type="submit"
           id="delete"
           value="Delete"
+          disabled={hasErrors || disabledButtons.includes("delete")}
         />
 
         <Button
@@ -160,9 +178,27 @@ const GetDelUpdate = (props) => {
           value="Reset"
         />
       </div>
+
+      <Separator text="OR" />
+      <Button
+        className={classes.primaryButton}
+        type="submit"
+        id="getall"
+        value="Get all"
+      />
     </>
   );
 };
+
+const Separator = ({ text }) => (
+  <div className="flex items-center py-2">
+    <span className="flex-1 h-0.5 p-0 bg-black"></span>
+    <span className="text-lg px-2">{text}</span>
+    <span className="flex-1 h-0.5 p-0 bg-black"></span>
+  </div>
+);
+
+Separator.propTypes = { text: PropTypes.string.isRequired };
 
 Fields.propTypes = {
   formData: PropTypes.object.isRequired,
@@ -171,6 +207,7 @@ Fields.propTypes = {
   page: PropTypes.object.isRequired,
   hasErrors: PropTypes.bool,
   errors: PropTypes.object,
+  disabledButtons: PropTypes.arrayOf(PropTypes.string),
 };
 
 Register.propTypes = Fields.propTypes;

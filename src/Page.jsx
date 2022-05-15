@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Fields } from "./Fields";
+import { Table } from "./Table";
 import { Rest } from "./util/Rest";
 
-export const Form = ({ page, classNames, ...props }) => {
+export const Page = ({ page, classNames, ...props }) => {
   const formInit = {
     id: "",
     name: "",
@@ -11,10 +12,12 @@ export const Form = ({ page, classNames, ...props }) => {
     plaintext: "",
     plaintextVerify: "",
   };
+  const disabledInit = ["get", "update", "delete"];
   const [formData, setFormData] = useState(formInit);
-  const [errors, setErrors] = useState(formInit);
-  const [hasErrors, setHasErros] = useState(true);
+  const [errorMessages, setErrorMessages] = useState(formInit);
+  const hasErrors = useRef(true);
   const [apiResponse, setApiResponse] = useState({});
+  const [disabledButtons, setDisabledButtons] = useState(disabledInit);
 
   const classes = {
     form: classNames.form.join(" "),
@@ -48,15 +51,18 @@ export const Form = ({ page, classNames, ...props }) => {
   const handleReset = (evt) => {
     evt.preventDefault();
     setFormData(formInit);
-    setHasErros(true);
+    setErrorMessages(formInit);
+    hasErrors.current = true;
   };
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    validateInput(formData);
 
-    if (hasErrors) return;
     const submitter = evt.nativeEvent.submitter;
+
+    if (submitter.id !== "getall") validateInput(formData);
+    if (submitter.id !== "getall" && hasErrors.current) return;
+    hasErrors.current = true;
 
     switch (page.id) {
       case "register":
@@ -122,21 +128,78 @@ export const Form = ({ page, classNames, ...props }) => {
   };
 
   const validateInput = (data) => {
-    setHasErros(false);
+    let errors = errorMessages;
+    let disabled = disabledButtons;
 
-    if (data.name.length < 3) {
-      setErrors({ ...errors, name: "Name must be at least 3 characters" });
-      setHasErros(true);
-    } else setErrors({ ...errors, name: "" });
+    // handle each page validation separately based on which site we are currently
+    /* Register page */
+    if (page.id === "register") {
+      if (data.name && data.name.length < 3) {
+        errors = { ...errors, name: "Name must be at least 3 characters" };
+      } else {
+        errors = { ...errors, name: "" };
+      }
 
-    if (data.username.match(/\s/g) || !data.username.match(/[\x21-\x7E]+/g)) {
-      setErrors({ ...errors, username: "Only ascii with no whitespace" });
-      setHasErros(true);
-    } else setErrors({ ...errors, username: "" });
+      if (
+        data.username &&
+        (data.username.match(/\s/g) || !data.username.match(/[\x21-\x7E]+/g))
+      ) {
+        errors = {
+          ...errors,
+          username: "Only ascii characters with no whitespace",
+        };
+      } else {
+        errors = { ...errors, username: "" };
+      }
+
+      if (data.plaintext && data.plaintext.length < 6) {
+        errors = { ...errors, plaintext: "Minimum length is 6 characters" };
+      } else {
+        errors = { ...errors, plaintext: "" };
+      }
+
+      if (data.plaintextVerify && data.plaintextVerify !== formData.plaintext) {
+        errors = { ...errors, plaintextVerify: "Passwords don't match" };
+      } else {
+        errors = { ...errors, plaintextVerify: "" };
+      }
+    }
+
+    /* Login page */
+    if (page.id === "login") {
+      if (!data.username) {
+        errors = { ...errors, username: "Field cannot be empty" };
+      } else {
+        errors = { ...errors, username: "" };
+      }
+      if (!data.plaintext) {
+        errors = { ...errors, plaintext: "Field cannot be empty" };
+      } else {
+        errors = { ...errors, plaintext: "" };
+      }
+    }
+
+    /* Get/Delete/Update page */
+    if (page.id === "getdelupdate") {
+      if (!data.id && !data.name) {
+        const msg = "Both fields can't be empty";
+        errors = { ...errors, id: msg, name: msg };
+      } else {
+        errors = { ...errors, id: "", name: "" };
+      }
+      if (!data.id) disabled = disabledInit;
+      else disabled = [];
+      if (!data.name) disabled = ["update"];
+      else disabled = [...disabled];
+    }
+
+    setErrorMessages(errors);
+    setDisabledButtons(disabled);
+    hasErrors.current = !Object.values(errors).every((val) => val === "");
   };
 
   return (
-    <>
+    <div>
       <form
         className={classes.form}
         onSubmit={handleSubmit}
@@ -150,12 +213,14 @@ export const Form = ({ page, classNames, ...props }) => {
           formData={formData}
           classes={classes}
           handleChange={handleChange}
-          hasErrors={hasErrors}
-          errors={errors}
+          hasErrors={hasErrors.current}
+          errors={errorMessages}
+          disabledButtons={disabledButtons}
         />
       </form>
       <RawView apiResponse={apiResponse} />
-    </>
+      <Table rawData={apiResponse} />
+    </div>
   );
 };
 
@@ -163,7 +228,7 @@ const RawView = ({ apiResponse }) => {
   const [showRaw, setShowRaw] = useState(false);
 
   return (
-    <>
+    <div>
       <p
         onClick={() => setShowRaw(!showRaw)}
         className="cursor-pointer text-xs underline mt-4"
@@ -178,7 +243,7 @@ const RawView = ({ apiResponse }) => {
           {JSON.stringify(apiResponse, null, 2)}
         </pre>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -186,7 +251,7 @@ RawView.propTypes = {
   apiResponse: PropTypes.object,
 };
 
-Form.propTypes = {
+Page.propTypes = {
   page: PropTypes.object.isRequired,
   classNames: PropTypes.object.isRequired,
 };
